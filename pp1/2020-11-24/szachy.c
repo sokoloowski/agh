@@ -278,7 +278,7 @@ int minimax(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
                             dy = distance * WY[board[px][py]][direction];
                             // ruch mieści się w szachownicy
                             if (px + dx >= 0 && px + dx < 8 && py + dy >= 0 && py + dy < 8)
-                                // docelowe ple puste lub figura przeciwnika
+                                // docelowe pole puste lub figura przeciwnika
                                 if (board[px + dx][py + dy] == BLANK || board[px + dx][py + dy] <= PIONEK)
                                     // warunek dodatkowy dla piona (bicie w bok, ruch naprzód)
                                     if (board[px][py] != PIONEK_K || (board[px + dx][py + dy] == BLANK && dy == 0) || (board[px + dx][py + dy] != BLANK && dy != 0))
@@ -426,7 +426,7 @@ int main(void)
         getMove(board);
         printBoard(board);
 
-        res = minimax(board, 6, &x, &y, &dir, &dist);
+        res = minimax(board, 4, &x, &y, &dir, &dist);
 
         if (abs(res) >= WIN)
             break;
