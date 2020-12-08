@@ -239,7 +239,7 @@ int estimateBoard(int board[8][8])
     return result;
 }
 
-int najlepszy(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
+int minimax(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
 {
     int tmp_x,
         tmp_y,
@@ -417,16 +417,16 @@ void printBoard(int board[8][8])
 
 int main(void)
 {
-    int koniec = 0,
+    int end = 0,
         res = 0;
     printBoard(board);
-    while (!koniec)
+    while (!end)
     {
         int x = 0, y = 0, dir = 0, dist = 0;
         getMove(board);
         printBoard(board);
 
-        res = najlepszy(board, 6, &x, &y, &dir, &dist);
+        res = minimax(board, 6, &x, &y, &dir, &dist);
 
         if (abs(res) >= WIN)
             break;
