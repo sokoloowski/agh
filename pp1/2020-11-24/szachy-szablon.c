@@ -20,7 +20,7 @@
 int MAX_KIER[] = {8, 8, 4, 4, 8, 3, 8, 8, 4, 4, 8, 3, 0};
 int MAX_ODL[] = {2, 8, 8, 8, 2, 2, 2, 8, 8, 8, 2, 2, 0};
 
-int WX[12][8] = {
+int WY[12][8] = {
     {-1, -1, 0, 1, 1, 1, 0, -1},
     {-1, -1, 0, 1, 1, 1, 0, -1},
     {-1, 0, 1, 0},
@@ -34,7 +34,7 @@ int WX[12][8] = {
     {-2, -1, 1, 2, 2, 1, -1, -2},
     {1, 1, 1}};
 
-int WY[12][8] = {
+int WX[12][8] = {
     {0, 1, 1, 1, 0, -1, -1, -1},
     {0, 1, 1, 1, 0, -1, -1, -1},
     {0, 1, 0, -1},
@@ -47,16 +47,6 @@ int WY[12][8] = {
     {1, 1, -1, -1},
     {1, 2, 2, 1, -1, -2, -2, -1},
     {-1, 0, 1}};
-
-int plansza[8][8] = {
-    {WIEZA_K, SKOCZEK_K, GONIEC_K, HETMAN_K, KROL_K, GONIEC_K, SKOCZEK_K, WIEZA_K},
-    {PIONEK_K, PIONEK_K, PIONEK_K, PIONEK_K, PIONEK_K, PIONEK_K, PIONEK_K, PIONEK_K},
-    {PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE},
-    {PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE},
-    {PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE},
-    {PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE, PUSTE},
-    {PIONEK, PIONEK, PIONEK, PIONEK, PIONEK, PIONEK, PIONEK, PIONEK},
-    {WIEZA, SKOCZEK, GONIEC, HETMAN, KROL, GONIEC, SKOCZEK, WIEZA}};
 
 int HEUR[12][8][8] = {
     // ------------------------------ PLAYER ------------------------------ //
@@ -198,38 +188,6 @@ int HEUR[12][8][8] = {
     12 - pole puste
 */
 
-const char *figura(int pole)
-{
-    if (pole == KROL)
-        return "♛";
-    if (pole == HETMAN)
-        return "♚";
-    if (pole == WIEZA)
-        return "♜";
-    if (pole == GONIEC)
-        return "♝";
-    if (pole == SKOCZEK)
-        return "♞";
-    if (pole == PIONEK)
-        return "♟";
-
-    if (pole == KROL_K)
-        return "♕";
-    if (pole == HETMAN_K)
-        return "♔";
-    if (pole == WIEZA_K)
-        return "♖";
-    if (pole == GONIEC_K)
-        return "♗";
-    if (pole == SKOCZEK_K)
-        return "♘";
-    if (pole == PIONEK_K)
-        return "♙";
-
-    // default fallback
-    return " ";
-}
-
 int ocena(int plansza[8][8])
 {
     int i,
@@ -269,7 +227,7 @@ int najlepszy(int plansza[8][8], int tryb, int *x, int *y, int *k, int *o)
                 // na polu figura komputera
                 if (plansza[px][py] >= 6 && plansza[px][py] <= 12)
                     for (kierunek = 0; kierunek < MAX_KIER[plansza[px][py]]; kierunek++)
-                        for (odleglosc = 1; kierunek < MAX_ODL[plansza[px][py]]; odleglosc++)
+                        for (odleglosc = 1; odleglosc < MAX_ODL[plansza[px][py]]; odleglosc++)
                         {
                             dx = (odleglosc - 1) * WX[plansza[px][py]][kierunek];
                             dy = (odleglosc - 1) * WY[plansza[px][py]][kierunek];
@@ -283,7 +241,7 @@ int najlepszy(int plansza[8][8], int tryb, int *x, int *y, int *k, int *o)
                                 // docelowe pole puste lub figura przeciwnika
                                 if (plansza[px + dx][py + dy] == PUSTE || plansza[px + dx][py + dy] <= 5)
                                     // warunek dodatkowy dla piona (bicie w bok, ruch naprzód)
-                                    if (plansza[px][py] != 11 || (plansza[px + dx][py + dy] == PUSTE && dx == 0) || (plansza[px + dx][py + dy] != PUSTE && dx != 0))
+                                    if (plansza[px][py] != 11 || (plansza[px + dx][py + dy] == PUSTE && dy == 0) || (plansza[px + dx][py + dy] != PUSTE && dy != 0))
                                     {
                                         ruch_fig = plansza[px][py];
                                         bita_fig = plansza[px + dx][py + dy]; //ruch
@@ -327,8 +285,8 @@ int najlepszy(int plansza[8][8], int tryb, int *x, int *y, int *k, int *o)
                             if (px + dx >= 0 && px + dx < 8 && py + dy >= 0 && py + dy < 8)
                                 // docelowe pole puste lub fig przeciwnika
                                 if (plansza[px + dx][py + dy] >= 6)
-                                    // warunek dodatkowy dla piona (picie w bok, ruch naprzód)
-                                    if (plansza[px][py] != 5 || (plansza[px + dx][py + dy] == PUSTE && dx == 0) || (plansza[px + dx][py + dy] != PUSTE && dx != 0))
+                                    // warunek dodatkowy dla piona (bicie w bok, ruch naprzód)
+                                    if (plansza[px][py] != 5 || (plansza[px + dx][py + dy] == PUSTE && dy == 0) || (plansza[px + dx][py + dy] != PUSTE && dy != 0))
                                     {
                                         ruch_fig = plansza[px][py];
                                         bita_fig = plansza[px + dx][py + dy];
@@ -353,94 +311,4 @@ int najlepszy(int plansza[8][8], int tryb, int *x, int *y, int *k, int *o)
                         }
         return wmin; // należy również przewidzieć pat
     }
-}
-
-void getMove(int board[8][8])
-{
-    int colFrom, rowFrom,
-        colTo, rowTo, toMove;
-    char tmpFrom, tmpTo, ch;
-
-    printf("Ruch z (a1): ");
-    scanf("%c%d%c", &tmpFrom, &rowFrom, &ch);
-    rowFrom--;
-    if (tmpFrom >= 'a' && tmpFrom <= 'h')
-        colFrom = tmpFrom - 'a';
-    else if (tmpFrom >= 'A' && tmpFrom <= 'H')
-        colFrom = tmpFrom - 'A';
-
-    if (rowFrom < 0 || rowFrom >= 8 || colFrom < 0 || colFrom >= 8 || board[rowFrom][colFrom] >= KROL_K)
-    {
-        printf("Nieprawidłowa wartość! Spróbuj ponownie!\n");
-        getMove(board);
-    }
-
-    printf("Ruch do (a1): ");
-    scanf("%c%d%c", &tmpTo, &rowTo, &ch);
-    rowTo--;
-    if (tmpTo >= 'a' && tmpTo <= 'h')
-        colTo = tmpTo - 'a';
-    else if (tmpTo >= 'A' && tmpTo <= 'H')
-        colTo = tmpTo - 'A';
-
-    if (rowTo < 0 || rowTo >= 8 || colTo < 0 || colTo >= 8)
-    {
-        printf("Nieprawidłowa wartość! Spróbuj ponownie!\n");
-        getMove(board);
-    }
-
-    if (board[rowTo][colTo] <= PIONEK)
-    {
-        printf("To pole jest już zajęte! Spróbuj ponownie!\n");
-        getMove(board);
-    }
-
-    board[rowTo][colTo] = board[rowFrom][colFrom];
-    board[rowFrom][colFrom] = PUSTE;
-}
-
-void wypisz(int plansza[8][8])
-{
-    system("clear");
-    printf("   | A | B | C | D | E | F | G | H |\n");
-    printf("---+---+---+---+---+---+---+---+---+\n");
-    for (int row = 0; row < 8; row++)
-    {
-        printf(" %d |", row + 1);
-        for (int col = 0; col < 8; col++)
-        {
-            int field = plansza[row][col];
-            printf(" %s |", figura(field));
-        }
-        printf("\n---+---+---+---+---+---+---+---+---+\n");
-        // printf("\n");
-    }
-}
-
-int main(void)
-{
-    int koniec = 0,
-        res = 0;
-    wypisz(plansza);
-    printf("Białe zaczynają...\n\n");
-    while (!koniec)
-    {
-        int x = 0, y = 0, k = 0, o = 0;
-        getMove(plansza);
-        wypisz(plansza);
-
-        res = najlepszy(plansza, 6, &x, &y, &k, &o);
-
-        // if (abs(res) >= WYGRANA)
-        //     break;
-
-        plansza[x + WX[plansza[x][y]][k]][y + WY[plansza[x][y]][k]] = plansza[x][y];
-        plansza[x][y] = PUSTE;
-        wypisz(plansza);
-    }
-    if (res >= WYGRANA)
-        printf("AI wygrywa\n");
-    if (res <= PRZEGRANA)
-        printf("Brawo, wygrałeś!");
-    return 0;
 }
