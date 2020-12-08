@@ -281,14 +281,14 @@ int najlepszy(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
                                 // docelowe ple puste lub figura przeciwnika
                                 if (board[px + dx][py + dy] == BLANK || board[px + dx][py + dy] <= PIONEK)
                                     // warunek dodatkowy dla piona (bicie w bok, ruch naprzód)
-                                    if (board[px][py] != PIONEK_K || (board[px + dx][py + dy] == BLANK && dx == 0) || (board[px + dx][py + dy] != BLANK && dx != 0))
+                                    if (board[px][py] != PIONEK_K || (board[px + dx][py + dy] == BLANK && dy == 0) || (board[px + dx][py + dy] != BLANK && dy != 0))
                                     {
                                         ruch_fig = board[px][py];
                                         bita_fig = board[px + dx][py + dy]; //ruch
                                         board[px + dx][py + dy] = board[px][py];
                                         board[px][py] = BLANK;
                                         if (board[px + dx][py + dy] == PIONEK_K && py + dy == 7) // pion doszedł do końca to
-                                            board[px + dx][py + dy] = 7;                   // wymiana na hetmana
+                                            board[px + dx][py + dy] = 7;                         // wymiana na hetmana
                                         result = najlepszy(board, depth - 1, &tmp_x, &tmp_y, &tmp_dir, &tmp_dist);
                                         // cofnięcie ruchu
                                         board[px][py] = ruch_fig;
@@ -326,7 +326,7 @@ int najlepszy(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
                                 // docelowe pole puste lub figura przeciwnika
                                 if (board[px + dx][py + dy] >= KROL_K)
                                     // warunek dodatkowy dla piona (bicie w bok, ruch naprzód)
-                                    if (board[px][py] != PIONEK || (board[px + dx][py + dy] == BLANK && dx == 0) || (board[px + dx][py + dy] != BLANK && dx != 0))
+                                    if (board[px][py] != PIONEK || (board[px + dx][py + dy] == BLANK && dy == 0) || (board[px + dx][py + dy] != BLANK && dy != 0))
                                     {
                                         ruch_fig = board[px][py];
                                         bita_fig = board[px + dx][py + dy];
