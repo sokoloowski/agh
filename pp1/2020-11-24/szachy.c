@@ -271,7 +271,7 @@ int minimax(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
                         {
                             dx = (distance - 1) * WX[board[px][py]][direction];
                             dy = (distance - 1) * WY[board[px][py]][direction];
-                            // jeśli po drodze nieBLANK
+                            // jeśli po drodze niepuste
                             if (distance >= 2 && board[px + dx][py + dy] != BLANK)
                                 break;
                             dx = distance * WX[board[px][py]][direction];
@@ -289,7 +289,7 @@ int minimax(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
                                         board[px][py] = BLANK;
                                         if (board[px + dx][py + dy] == PIONEK_K && py + dy == 7) // pion doszedł do końca to
                                             board[px + dx][py + dy] = 7;                         // wymiana na hetmana
-                                        result = najlepszy(board, depth - 1, &tmp_x, &tmp_y, &tmp_dir, &tmp_dist);
+                                        result = minimax(board, depth - 1, &tmp_x, &tmp_y, &tmp_dir, &tmp_dist);
                                         // cofnięcie ruchu
                                         board[px][py] = ruch_fig;
                                         board[px + dx][py + dy] = bita_fig;
@@ -316,7 +316,7 @@ int minimax(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
                         {
                             dx = (distance - 1) * WX[board[px][py]][direction];
                             dy = (distance - 1) * WY[board[px][py]][direction];
-                            // jeśli po drodze nieBLANK
+                            // jeśli po drodze niepuste
                             if (distance >= 2 && board[px + dx][py + dy] != BLANK)
                                 break;
                             dx = distance * WX[board[px][py]][direction];
@@ -335,7 +335,7 @@ int minimax(int board[8][8], int depth, int *x, int *y, int *dir, int *dist)
                                         // jeśli pion doszedł do końca to wymiana na hetmana
                                         if (board[px + dx][py + dy] == PIONEK && py + dy == 0)
                                             board[px + dx][py + dy] = 1;
-                                        result = najlepszy(board, depth - 1, &tmp_x, &tmp_y, &tmp_dir, &tmp_dist);
+                                        result = minimax(board, depth - 1, &tmp_x, &tmp_y, &tmp_dir, &tmp_dist);
                                         // cofnięcie ruchu
                                         board[px][py] = ruch_fig;
                                         board[px + dx][py + dy] = bita_fig;
