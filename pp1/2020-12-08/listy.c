@@ -132,6 +132,10 @@ int main(void)
     dopisz(&ws, 5);
     dopisz(&ws, 22);
     wypisz(ws);
+
+    struct el_listy *ws2 = kopiuj(ws);
+    wypisz(ws2);
+
     printf("\n");
     return 0;
 }
