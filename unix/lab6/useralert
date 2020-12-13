@@ -1,0 +1,22 @@
+#!/usr/bin/php
+<?php
+
+function active_connections($user)
+{
+    return count(explode("\n", trim(shell_exec('who | grep ' . $user))));
+}
+
+if (!isset($argv[1])) die('Nie podałeś użytkownika!' . PHP_EOL);
+$username = $argv[1];
+$connections = active_connections($username);
+
+while (true) {
+    $my_pts = explode(PHP_EOL, preg_replace('/^\S+ +(\S+) .+/m', '$1', trim(shell_exec('who | grep $USER'))));
+    $conn = active_connections($username);
+    if ($conn > $connections) {
+        foreach ($my_pts as $pts) {
+            shell_exec('echo "Użytkownik ' . $username . ' zalogował się właśnie do systemu!" > /dev/' . $pts);
+        }
+    }
+    $connections = $conn;
+}
