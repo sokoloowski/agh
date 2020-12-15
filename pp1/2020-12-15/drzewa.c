@@ -3,6 +3,8 @@
 
 struct el_drzewa
 {
+    double w;
+    struct el_drzewa *lewy, *prawy;
 };
 
 void wstaw(struct el_drzewa, **pocz, double war)
@@ -48,6 +50,16 @@ void wypisz(struct el_drzewa *pocz)
         return;
     wypisz(pocz->lewy);
     printf(" %lf ", pocz->w);
+    wypisz(pocz->prawy);
+}
+
+struct el_drzewa *znajdz(struct el_drzewa *pocz, double war)
+{
+    if (pocz == 0)
+        return;
+    wypisz(pocz->lewy);
+    if (pocz->w == war)
+        return pocz;
     wypisz(pocz->prawy);
 }
 
