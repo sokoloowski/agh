@@ -4,10 +4,10 @@
 
 int main(void)
 {
-    int status, dlugosc, nr = 0, end = 1;
+    int status, dlugosc;
     SOCKET gniazdo, gniazdo2;
     struct sockaddr_in srv, cli;
-    char buf[200];
+    char buf[1025];
     WSADATA wsadata;
 
     if (WSAStartup(MAKEWORD(2, 0), &wsadata)) {
@@ -52,9 +52,22 @@ int main(void)
             }
             status = recv(gniazdo2, buf, sizeof buf, 0);
             buf[status] = '\0';
-            printf("\t%s", buf);
+            printf("%s", buf);
+
+            FILE *plik;
+            plik = fopen(strtok(buf, "\n"), "r");
+            if (plik == 0) {
+                sprintf(buf, "Wystapil blad podczas otwierania pliku\n");
+                send(gniazdo2, buf, strlen(buf), 0);
+                closesocket(gniazdo2);
+                continue;
+            }
+            char tmp[1024];
+            fgets(tmp, 1024, (FILE*)plik);
+            fclose(plik);
+
             fflush(stdin);
-            sprintf(buf, "o");
+            sprintf(buf, "%s", tmp);
             send(gniazdo2, buf, strlen(buf), 0);
             closesocket(gniazdo2);
             break;
