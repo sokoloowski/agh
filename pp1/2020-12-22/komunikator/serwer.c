@@ -51,7 +51,8 @@ int main(void)
                 printf("Accept error!\n");
                 return 0;
             }
-            recv(gniazdo2, buf, sizeof buf, 0);
+            status = recv(gniazdo2, buf, sizeof buf, 0);
+            buf[status] = '\0';
             printf("\t%s", buf);
             fflush(stdin);
             sprintf(buf, "o");
