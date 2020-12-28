@@ -1,0 +1,4 @@
+D:/repos/agh/pp1/2020-12-22/komunikator/cmake-build-debug/CMakeFiles/klient.dir
+D:/repos/agh/pp1/2020-12-22/komunikator/cmake-build-debug/CMakeFiles/serwer.dir
+D:/repos/agh/pp1/2020-12-22/komunikator/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/repos/agh/pp1/2020-12-22/komunikator/cmake-build-debug/CMakeFiles/rebuild_cache.dir
