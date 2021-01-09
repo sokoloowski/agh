@@ -10,23 +10,28 @@ static double powierz[ROZ_X][ROZ_Y] = {0};
 
 GLfloat KAT = 0,
         PI = 3.14,
-        PX = -ROZ_X/2,
+        PX = -ROZ_X / 2,
         PY = -2,
-        PZ = -ROZ_Y/2;
+        PZ = -ROZ_Y / 2;
 
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
-void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
+
+void EnableOpenGL(HWND hwnd, HDC *, HGLRC *);
+
 void DisableOpenGL(HWND, HDC, HGLRC);
+
 void init();
+
 void rysujPowierzchnie(HDC);
+
 void gora(int, int, int, int, int);
+
 void inicjujPlansze(int, int, int);
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine,
-                   int nCmdShow)
-{
+                   int nCmdShow) {
     WNDCLASSEX wcex;
     HWND hwnd;
     HDC hDC;
@@ -44,7 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     wcex.hInstance = hInstance;
     wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    wcex.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName = NULL;
     wcex.lpszClassName = "GLSample";
     wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
@@ -60,8 +65,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
                           WS_OVERLAPPEDWINDOW,
                           CW_USEDEFAULT,
                           CW_USEDEFAULT,
-                          256,
-                          256,
+                          1024,
+                          600,
                           NULL,
                           NULL,
                           hInstance,
@@ -73,26 +78,20 @@ int WINAPI WinMain(HINSTANCE hInstance,
     EnableOpenGL(hwnd, &hDC, &hRC);
 
     /* program main loop */
-    while (!bQuit)
-    {
+    init();
+    inicjujPlansze(10,20,20);
+    while (!bQuit) {
         /* check for messages */
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             /* handle or dispatch messages */
-            if (msg.message == WM_QUIT)
-            {
+            if (msg.message == WM_QUIT) {
                 bQuit = TRUE;
-            }
-            else
-            {
+            } else {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
+        } else {
             rysujPowierzchnie(hDC);
-        }
-        else
-        {
-            init();
         }
     }
 
@@ -105,10 +104,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
     return msg.wParam;
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    switch (uMsg) {
         case WM_CLOSE:
             PostQuitMessage(0);
             break;
@@ -116,20 +113,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_DESTROY:
             return 0;
 
-        case WM_KEYDOWN:
-        {
-            switch (wParam)
-            {
+        case WM_KEYDOWN: {
+            switch (wParam) {
                 case VK_ESCAPE:
                     PostQuitMessage(0);
                     break;
                 case VK_UP:
-                    PX += sin(PI*KAT/180);
-                    PZ += cos(PI*KAT/180);
+                    PX += sin(PI * KAT / 180);
+                    PY = powierz[(int) PX + ROZ_X][(int)PZ+ROZ_Y] - 2;
+                    PZ += cos(PI * KAT / 180);
                     break;
                 case VK_DOWN:
-                    PX -= sin(PI*KAT/180);
-                    PZ -= cos(PI*KAT/180);
+                    PX -= sin(PI * KAT / 180);
+                    PY = powierz[(int) PX + ROZ_X][(int)PZ+ROZ_Y] - 2;
+                    PZ -= cos(PI * KAT / 180);
                     break;
                 case VK_LEFT:
                     KAT += 4;
@@ -153,8 +150,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-void EnableOpenGL(HWND hwnd, HDC* hDC, HGLRC* hRC)
-{
+void EnableOpenGL(HWND hwnd, HDC *hDC, HGLRC *hRC) {
     PIXELFORMATDESCRIPTOR pfd;
 
     int iFormat;
@@ -184,30 +180,27 @@ void EnableOpenGL(HWND hwnd, HDC* hDC, HGLRC* hRC)
     wglMakeCurrent(*hDC, *hRC);
 }
 
-void DisableOpenGL (HWND hwnd, HDC hDC, HGLRC hRC)
-{
+void DisableOpenGL(HWND hwnd, HDC hDC, HGLRC hRC) {
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(hRC);
     ReleaseDC(hwnd, hDC);
 }
 
-void init()
-{
+void init() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45,1,1,160);
+    gluPerspective(45, 1, 1, 160);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glEnable(GL_DEPTH_TEST);
 }
 
-void rysujPowierzchnie(HDC hDC)
-{
+void rysujPowierzchnie(HDC hDC) {
     glLoadIdentity();
     glRotatef(-KAT, 0, 1, 0);
     glTranslatef(PX, PY, PZ);
     glClearColor(1, 1, 1, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glColor3f(0, 0, 0);
     glBegin(GL_QUADS);
@@ -238,6 +231,8 @@ void inicjujPlansze(int liczbaGor, int maxPromien, int maxWys) {
     for (a = 0; a < liczbaGor; a++) {
         r1 = rand() * maxPromien / RAND_MAX;
         r2 = rand() * r1 / 2 / RAND_MAX;
-        wys = rand() *2;
+        wys = rand() * maxWys / RAND_MAX;
+        px = rand() * ROZ_X / RAND_MAX;
+        gora(px, py, r1, r2, wys);
     }
 }

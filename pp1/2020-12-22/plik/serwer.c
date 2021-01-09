@@ -62,8 +62,14 @@ int main(void)
                 closesocket(gniazdo2);
                 continue;
             }
-            char tmp[1024];
-            fgets(tmp, 1024, (FILE*)plik);
+            char tmp[1024] = "";
+            int c = fgetc((FILE*)plik),
+                k = 0;
+            while (c != EOF) {
+                tmp[k] = c;
+                c = fgetc((FILE*)plik);
+                k++;
+            }
             fclose(plik);
 
             fflush(stdin);
