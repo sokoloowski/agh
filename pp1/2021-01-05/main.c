@@ -141,7 +141,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     if (KAT < 0)
                         KAT += 360;
                     break;
-
+                case 90:
+                    PY++;
+                    break;
+                case 88:
+                    PY--;
+                    break;
             }
         }
             break;
