@@ -65,16 +65,18 @@ int main(void)
             char tmp[1024] = "";
             int c = fgetc((FILE*)plik),
                 k = 0;
-            while (c != EOF) {
+            while (c != EOF && k < 1023) {
                 tmp[k] = c;
                 c = fgetc((FILE*)plik);
                 k++;
             }
+
+            tmp[k] = '\0';
             fclose(plik);
 
             fflush(stdin);
-            sprintf(buf, "%s", tmp);
-            send(gniazdo2, buf, strlen(buf), 0);
+//            sprintf(buf, "%s", tmp);
+            send(gniazdo2, tmp, strlen(tmp), 0);
             closesocket(gniazdo2);
             break;
         }

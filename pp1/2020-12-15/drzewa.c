@@ -8,7 +8,6 @@ struct el_drzewa {
 
 void wstaw(struct el_drzewa **pocz, double war) {
     struct el_drzewa *nowy, *ws = *pocz, *nastepny;
-    ;
     nowy = malloc(sizeof(struct el_drzewa));
     nowy->w = war;
     nowy->lewy = nowy->prawy = 0;
@@ -66,8 +65,10 @@ int main(void) {
     wstaw(&drzewo, 5);
     wstaw(&drzewo, 8);
     wstaw(&drzewo, 2);
+    wstaw(&drzewo, 10);
+    wstaw(&drzewo, 22);
 //    wypisz(znajdz(drzewo, 2));
-    wypisz(znajdz(drzewo, 3));
+//    wypisz(znajdz(drzewo, 3));
     wypisz(drzewo);
     return 0;
 }

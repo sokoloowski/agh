@@ -129,8 +129,10 @@ struct el_listy *dodaj(struct el_listy *pocz1, struct el_listy *pocz2)
 int main(void)
 {
     struct el_listy *ws = 0;
-    dopisz(&ws, 5);
-    dopisz(&ws, 22);
+    wstaw(&ws, 5);
+    wstaw(&ws, 22);
+    wstaw(&ws, 3);
+    wstaw(&ws, 9);
     wypisz(ws);
 
     struct el_listy *ws2 = kopiuj(ws);
