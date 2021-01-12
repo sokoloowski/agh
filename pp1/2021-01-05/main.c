@@ -2,6 +2,7 @@
 #include <gl/gl.h>
 #include <gl/glu.h>
 #include <math.h>
+#include <stdio.h>
 
 #define ROZ_X 100
 #define ROZ_Y 100
@@ -27,6 +28,8 @@ void rysujPowierzchnie(HDC);
 void gora(int, int, int, int, int);
 
 void inicjujPlansze(int, int, int);
+
+void inicjujTeksture(char *);
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -79,7 +82,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     /* program main loop */
     init();
-    inicjujPlansze(10,20,20);
+    inicjujPlansze(10, 20, 20);
     while (!bQuit) {
         /* check for messages */
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -120,12 +123,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     break;
                 case VK_UP:
                     PX += sin(PI * KAT / 180);
-                    PY = powierz[(int) PX + ROZ_X][(int)PZ+ROZ_Y] - 2;
+                    PY = (powierz[(int) PX * -1][(int) PZ * -1] + 2) * -1;
                     PZ += cos(PI * KAT / 180);
                     break;
                 case VK_DOWN:
                     PX -= sin(PI * KAT / 180);
-                    PY = powierz[(int) PX + ROZ_X][(int)PZ+ROZ_Y] - 2;
+                    PY = (powierz[(int) PX * -1][(int) PZ * -1] + 2) * -1;
                     PZ -= cos(PI * KAT / 180);
                     break;
                 case VK_LEFT:
@@ -193,6 +196,7 @@ void init() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glEnable(GL_DEPTH_TEST);
+    inicjujTeksture("../grass.bmp");
 }
 
 void rysujPowierzchnie(HDC hDC) {
@@ -201,14 +205,18 @@ void rysujPowierzchnie(HDC hDC) {
     glTranslatef(PX, PY, PZ);
     glClearColor(1, 1, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glColor3f(0, 0, 0);
     glBegin(GL_QUADS);
     for (int x = 0; x < ROZ_X - 1; x++)
         for (int y = 0; y < ROZ_Y - 1; y++) {
+            glTexCoord2f(0, 0);
             glVertex3f(x, powierz[x][y], y);
+            glTexCoord2f(0, 1);
             glVertex3f(x, powierz[x][y + 1], y + 1);
+            glTexCoord2f(1, 1);
             glVertex3f(x + 1, powierz[x + 1][y + 1], y + 1);
+            glTexCoord2f(1, 0);
             glVertex3f(x + 1, powierz[x + 1][y], y);
         }
     glEnd();
@@ -235,4 +243,27 @@ void inicjujPlansze(int liczbaGor, int maxPromien, int maxWys) {
         px = rand() * ROZ_X / RAND_MAX;
         gora(px, py, r1, r2, wys);
     }
+}
+
+void inicjujTeksture(char nazwa[]) {
+    long i, size = 256 * 256 * 3;
+    unsigned char buf[size];
+    FILE *texture;
+    if ((texture = fopen(nazwa, "rb")) == NULL) {
+        printf("Cannot open texture!");
+        return;
+    }
+    fseek(texture, -size, SEEK_END);
+    for (i = 0; i < size; i += 3) {
+        buf[i + 2] = getc(texture);
+        buf[i + 1] = getc(texture);
+        buf[i] = getc(texture);
+    }
+    fclose(texture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, buf);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glEnable(GL_TEXTURE_2D);
 }
