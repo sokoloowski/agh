@@ -9,6 +9,45 @@
 
 static double powierz[ROZ_X][ROZ_Y] = {0};
 
+GLint vertices[8][3] = {
+        {0, 0, 0},
+        {0, 0, 1},
+        {0, 1, 0},
+        {0, 1, 1},
+        {1, 0, 0},
+        {1, 0, 1},
+        {1, 1, 0},
+        {1, 1, 1}};
+
+GLint vertices2[8][3] = {
+        {0, 1, 0},
+        {0, 1, 2},
+        {0, 3, 0},
+        {0, 3, 2},
+        {2, 1, 0},
+        {2, 1, 2},
+        {2, 3, 0},
+        {2, 3, 2}};
+
+GLint vertices3[8][3] = {
+        {0, 3, 0},
+        {0, 3, 3},
+        {0, 6, 0},
+        {0, 6, 3},
+        {3, 3, 0},
+        {3, 3, 3},
+        {3, 6, 0},
+        {3, 6, 3}};
+
+GLint faces[6][4] = {
+        {1, 5, 7, 3},
+        {5, 4, 6, 7},
+        {4, 0, 2, 6},
+        {3, 7, 6, 2},
+        {0, 1, 3, 2},
+        {0, 4, 5, 1}};
+
+
 GLfloat KAT = 0,
         PI = 3.14,
         PX = -ROZ_X / 2,
@@ -212,19 +251,81 @@ void rysujPowierzchnie(HDC hDC) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glColor3f(0, 0, 0);
+    glEnable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);
     for (int x = 0; x < ROZ_X - 1; x++)
         for (int y = 0; y < ROZ_Y - 1; y++) {
             glTexCoord2f(0, 0);
             glVertex3f(x, powierz[x][y], y);
+
             glTexCoord2f(0, 1);
             glVertex3f(x, powierz[x][y + 1], y + 1);
+
             glTexCoord2f(1, 1);
             glVertex3f(x + 1, powierz[x + 1][y + 1], y + 1);
+
             glTexCoord2f(1, 0);
             glVertex3f(x + 1, powierz[x + 1][y], y);
         }
     glEnd();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    glDisable(GL_TEXTURE_2D);
+    // tworzy kostki
+    glBegin(GL_QUADS);
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 4; j++) {
+            //glColor3fv((GLfloat*)&vertexColors[faces[i][j]]);
+            glColor3f(0.6, 1.0, 0.0);
+            glVertex3iv((GLint *) &vertices[faces[i][j]]);
+        }
+    }
+    glEnd();
+    glBegin(GL_QUADS);
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 4; j++) {
+            //glColor3fv((GLfloat*)&vertexColors[faces[i][j]]);
+            glColor3f(0.4, 1.0, 1.0);
+            glVertex3iv((GLint *) &vertices2[faces[i][j]]);
+        }
+    }
+    glEnd();
+
+    glBegin(GL_QUADS);
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 4; j++) {
+            //glColor3fv((GLfloat*)&vertexColors[faces[i][j]]);
+            glColor3f(0.96, 0.59, 0.86);
+            glVertex3iv((GLint *) &vertices3[faces[i][j]]);
+        }
+    }
+    glEnd();
+
+
+    for (int p = 10; p < ROZ_X - 1; p += ROZ_X / 10) {
+        glBegin(GL_TRIANGLE_STRIP);
+        glColor3f(1, 1, 1);
+        glVertex3f(p, powierz[p][p] + 2, p);
+
+        glColor3f(1, 0, 0);
+        glVertex3f(-1 + p, powierz[-1 + p][1 + p], 1 + p);
+
+        glColor3f(0, 1, 0);
+        glVertex3f(1 + p, powierz[1 + p][1 + p], 1 + p);
+
+        glColor3f(0, 0, 1);
+        glVertex3f(p, powierz[p][-1 + p], -1.4 + p);
+
+        glColor3f(1, 1, 1);
+        glVertex3f(p, powierz[p][p] + 2, p);
+
+        glColor3f(1, 0, 0);
+        glVertex3f(-1 + p, powierz[-1 + p][1 + p], 1 + p);
+        glEnd();
+    }
+
+    glFlush();
     SwapBuffers(hDC);
 }
 
