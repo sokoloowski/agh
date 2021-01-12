@@ -82,7 +82,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     /* program main loop */
     init();
-    inicjujPlansze(10, 20, 20);
+    inicjujPlansze(30, 20, 10);
     while (!bQuit) {
         /* check for messages */
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -241,6 +241,7 @@ void inicjujPlansze(int liczbaGor, int maxPromien, int maxWys) {
         r2 = rand() * r1 / 2 / RAND_MAX;
         wys = rand() * maxWys / RAND_MAX;
         px = rand() * ROZ_X / RAND_MAX;
+        py = rand() * ROZ_Y / RAND_MAX;
         gora(px, py, r1, r2, wys);
     }
 }
