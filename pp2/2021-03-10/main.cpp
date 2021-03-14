@@ -158,12 +158,12 @@ void test_random()
 void test_mul_add()
 {
     Array arr(10);
-    
+
     cout << "Test 1: \t";
     arr.random();
     arr.add(4);
     arr.write_formatted(cout);
-    
+
     cout << "Test 2: \t";
     arr.random();
     arr.add(-0.5);

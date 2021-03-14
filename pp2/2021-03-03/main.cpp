@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#define DEFINICJA 3
 
 using namespace std;
 
@@ -8,7 +7,7 @@ using namespace std;
 void zadanie1()
 {
     int x = 7,
-        y = 8;
+            y = 8;
     cout << x << endl;
     cin >> x >> y;
     string imie;
