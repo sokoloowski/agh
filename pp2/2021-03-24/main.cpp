@@ -53,6 +53,7 @@ void test_read_write() {
     while (is) {
         Student st;
         st.read(is);
+        if (!is) break;
         st.write(cout);
         cout << endl;
     }
