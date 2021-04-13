@@ -82,9 +82,9 @@ void Komora::normalizuj() {
 }
 
 bool Komora::czy_przecina(const Komora &other) const {
-    return ((this->x1 >= other.x2) && (this->x2 <= other.x1)) ||
-           ((this->y1 <= other.y2) && (this->y2 >= other.y1)) ||
-           ((this->z1 <= other.z2) && (this->z2 >= other.z1));
+    return (((this->x1 < other.x2) && (this->x2 > other.x1)) &&
+            ((this->y2 < other.y1) && (this->y1 > other.y2)) &&
+            ((this->z2 < other.z1) && (this->z1 > other.z2)));
 }
 
 string Komora::to_string() const {
@@ -227,6 +227,17 @@ void test_czy_przecina() {
     cout << "Przecina:" << k.czy_przecina(k2) << endl;
 }
 
+void test_przecinanie(const char *komora2, bool expected) {
+    string komora = "( 3 7 8 , 7 2 2 )";
+    istringstream is(komora.append(komora2));
+    Komora k;
+    k.wczytaj(is);
+    Komora k2;
+    k2.wczytaj(is);
+    if (k.czy_przecina(k2) != expected)
+        cerr << "For " << komora << " got " << k.czy_przecina(k2) << ", excepted " << expected;
+}
+
 void test_czy_losowe_przecina() {
     Komora k(7, 3, 8, 7, 2, 2);
     k.wypisz(cout);
@@ -246,6 +257,16 @@ int main() {
 //    test_komora_wypisz();
 //    test_komora_odczyt_spacje();
 //    test_komora_odczyt();
-    test_czy_przecina();
+//    test_czy_przecina();
+    test_przecinanie("( 0 3 9 , 3 2 5 )", false);
+    test_przecinanie("( 2 9 8 , 8 1 6 )", true);
+    test_przecinanie("( 5 3 9 , 8 0 6 )", true);
+    test_przecinanie("( 2 7 8 , 7 2 5 )", true);
+    test_przecinanie("( 3 4 9 , 9 2 6 )", true);
+    test_przecinanie("( 0 5 9 , 7 4 5 )", true);
+    test_przecinanie("( 0 4 6 , 2 3 5 )", false);
+    test_przecinanie("( 1 7 6 , 9 5 5 )", true);
+    test_przecinanie("( 5 7 8 , 9 0 6 )", true);
+    test_przecinanie("( 0 6 8 , 9 0 5 )", true);
     return 0;
 }
