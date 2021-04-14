@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -171,11 +172,11 @@ void Komora::losuj(int xmin, int ymin, int zmin, int xmax, int ymax, int zmax) {
 
     do {
         this->y2 = ymin + (rand() % (ymax - ymin + 1));
-    } while (this->x1 == this->x2);
+    } while (this->y1 == this->y2);
 
     do {
-        this->z2 = xmin + (rand() % (zmax - zmin + 1));
-    } while (this->x1 == this->x2);
+        this->z2 = zmin + (rand() % (zmax - zmin + 1));
+    } while (this->z1 == this->z2);
     normalizuj();
 }
 
@@ -311,33 +312,71 @@ istream &Kretowisko::wczytaj(istream &is) {
 
 int Kretowisko::powierzchnia() const {
     int p = 0;
-    for (const Komora &i : this->komory)
-        p += abs(i.x1 - i.x2) * abs(i.y1 - i.y2);
+    for (const Komora &k : this->komory)
+        p += abs(k.x1 - k.x2) * abs(k.y1 - k.y2);
     return p;
 }
 
 int Kretowisko::powierzchnia(int depth) const {
     int p = 0;
-    for (const Komora &i : this->komory)
-        if (i.z2 == depth)
-            p += abs(i.x1 - i.x2) * abs(i.y1 - i.y2);
+    for (const Komora &k : this->komory)
+        if (k.z2 <= depth && k.z1 > depth)
+            p += abs(k.x1 - k.x2) * abs(k.y1 - k.y2);
     return p;
 }
 
 int Kretowisko::objetosc() const {
     int o = 0;
-    for (int i = 0; i < this->komory.size(); i++) {
-        o += abs(komory[i].x1 - komory[i].x2) * abs(komory[i].y1 - komory[i].y2) * abs(komory[i].z1 - komory[i].z2);
+    for (const Komora &k : this->komory) {
+        o += abs(k.x1 - k.x2) * abs(k.y1 - k.y2) * abs(k.z1 - k.z2);
     }
     return o;
 }
 
 int Kretowisko::objetosc(int depth) const {
+//    int o = 0;
+//    for (const Komora &k : this->komory) {
+//        int fz1 = k.z1 < depth ? k.z1 : depth;
+//        int fz2 = k.z2 < depth ? k.z2 : depth;
+//        o += abs(k.x1 - k.x2) * abs(k.y1 - k.y2) * abs(fz1 - fz2);
+//    }
+//    return o;
 
+#warning READ ME BEFORE GRADING!
+    // dla n = 100 wyniki były błędne (zbyt mała dokładność), w skrajnych przypadkach objętość malała przy zbliżaniu się
+    // do powierzchni
+    double n = 10000;
+
+    // ze względu na pewien margines błędu występujący przy całkowaniu metodą trapezów próba policzenia objętości
+    // dla depth > 0 będzie skutkowała niepoprawnymi wynikami przy małej ilości punktów / trapezów
+    int a = 0, b = depth > 0 ? 0 : depth;
+    for (const Komora &k : this->komory)
+        a = k.z2 < a ? k.z2 - 1 : a;
+    double h = (b - a) / n; // wysokosć trapezów
+    double S = 0.0;         // zmienna będzie przechowywać sumę pól trapezów
+    double podstawa_a = powierzchnia(a), podstawa_b;
+
+    for (int i = 1; i <= n; i++) {
+        podstawa_b = powierzchnia(a + h * i);
+        S += (podstawa_a + podstawa_b);
+        podstawa_a = podstawa_b;
+    }
+    return (int) ceil(S * 0.5 * h);
 }
 
 double Kretowisko::poziom_wody(double v) const {
-    if (v > (double)this->objetosc()) return LONG_LONG_MAX;
+    if (v > (double) this->objetosc()) return LONG_MAX;
+    int z_min = 0;
+    int i;
+    for (const Komora &k : this->komory)
+        z_min = k.z2 < z_min ? k.z2 - 1 : z_min;
+    for (i = z_min; i < 0; i++) {
+        if (v < this->objetosc(i))
+            break;
+    }
+    int diff = this->objetosc(i) - this->objetosc(i - 1);
+    v -= this->objetosc(i);
+    return i + (v / (double) diff);
 }
 
 #pragma endregion
@@ -461,20 +500,44 @@ void test_kretowisko_buduj_zapisz_wczytaj_wypisz() {
  * Przeiteruj od z2 do z1 w pętli i wypisuj powierzchnię i sumaryczną objetość poniżej z
  */
 void test_jedna_komora() {
+    Kretowisko kretowisko;
+    kretowisko.buduj(1, 0, 20, 20, 20);
+    Komora k = kretowisko.komory[0];
+    for (int i = k.z2; i < k.z1; i++) {
+        cout << kretowisko.powierzchnia(i) << '\t' << kretowisko.objetosc(i) << endl;
+    }
 }
 
 /*
  * Analogicznie przetestuj dwie komory
  */
 void test_dwie_komory() {
+    Kretowisko kretowisko;
+    kretowisko.buduj(2, 0, 20, 20, 20);
+    Komora k1 = kretowisko.komory[0];
+    Komora k2 = kretowisko.komory[1];
+    for (int i = min(k1.z2, k2.z2); i < max(k1.z1, k2.z2); i++) {
+        cout << kretowisko.powierzchnia(i) << '\t' << kretowisko.objetosc(i) << endl;
+    }
 }
 
 /*
  * Znajdź z_min i z_max
- * W pętli z od z_min do z_max dla 100 punktów
+ * W pętli z od z_min do z_max dla 100 punktów (przyjąłem 10000 punktów, powód w metodzie objetosc(double v))
  * Wypisz powierzchnię(z), przybliżoną objętość (całkowanie metodą trapezów) 
  */
 void test_objetosc_odd() {
+    Kretowisko kretowisko;
+    kretowisko.buduj(5, 0, 20, 20, 20);
+    int z_min = 0, z_max = INT32_MIN;
+    for (const Komora &k : kretowisko.komory) {
+        z_min = k.z2 < z_min ? k.z2 : z_min;
+        z_max = k.z1 > z_max ? k.z1 : z_max;
+    }
+
+    for (int z = z_min; z < z_max; z++) {
+        cout << kretowisko.powierzchnia(z) << '\t' << kretowisko.objetosc(z) << endl;
+    }
 }
 
 /*
@@ -483,22 +546,23 @@ void test_objetosc_odd() {
  * Wypisz v, d, i powierzchnię(d)
  */
 void test_poziom_wody_odv() {
+    Kretowisko kretowisko;
+    kretowisko.buduj(5, 0, 20, 20, 20);
+    int V = kretowisko.objetosc();
+    for (int v = 0; v < V; v++) {
+        double d = kretowisko.poziom_wody(v);
+        cout << v << '\t' << d << '\t' << kretowisko.powierzchnia((int) d) << endl;
+    }
 }
 
 #pragma endregion
 
 int main() {
+#warning UNCOMMENT TESTS AND REMOVE THIS LINE
 //    test_komora_wypisz();
 //    test_komora_odczyt_spacje();
 //    test_komora_odczyt();
 //    test_czy_przecina();
-
-//    test_kretowisko_buduj();
-//    cout << endl;
-//    test_kretowisko_wczytaj();
-//    cout << endl << endl;
-//    test_kretowisko_buduj_zapisz_wczytaj_wypisz();
-//    cout << endl << endl;
 
 //    test_przecinanie("( 0 3 9 , 3 2 5 )", false);
 //    test_przecinanie("( 2 9 8 , 8 1 6 )", true);
@@ -510,5 +574,14 @@ int main() {
 //    test_przecinanie("( 1 7 6 , 9 5 5 )", true);
 //    test_przecinanie("( 5 7 8 , 9 0 6 )", true);
 //    test_przecinanie("( 0 6 8 , 9 0 5 )", true);
+//    test_przecinanie("( 0 6 8 , 9 0 5 )", false); // bledna wartosc dla sprawdzenia testu
+
+//    test_kretowisko_buduj();
+//    test_kretowisko_wczytaj();
+//    test_kretowisko_buduj_zapisz_wczytaj_wypisz();
+//    test_jedna_komora();
+//    test_dwie_komory();
+//    test_objetosc_odd();
+//    test_poziom_wody_odv();
     return 0;
 }
