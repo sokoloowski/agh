@@ -188,12 +188,13 @@ void Komora::losuj(int xmin, int ymin, int zmin, int xmax, int ymax, int zmax)
     do
     {
         this->y2 = ymin + (rand() % (ymax - ymin + 1));
-    } while (this->x1 == this->x2);
+    } while (this->y1 == this->y2);
 
     do
     {
-        this->z2 = xmin + (rand() % (zmax - zmin + 1));
-    } while (this->x1 == this->x2);
+        this->z2 = zmin + (rand() % (zmax - zmin + 1));
+    } while (this->z1 == this->z2);
+    normalizuj();
 }
 
 void Komora::przesun(int dx, int dy, int dz)
