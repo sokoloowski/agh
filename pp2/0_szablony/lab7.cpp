@@ -194,6 +194,7 @@ bool relation::is_total_order() const
 
 /*
  * C:\Program Files (x86)\Graphviz2.38\bin\dot" -Tpng  %1 -o %~n1.png
+ * Wizualizacje online: https://dreampuf.github.io/GraphvizOnline/
  */
 void relation::to_dot(std::ostream &os) const
 {
