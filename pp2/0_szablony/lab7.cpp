@@ -116,6 +116,7 @@ set<int> relation::get_domain() const
 
     return r;
 }
+
 /*
  * zwraca przeciwdziedzine relacji (igreki)
  */
@@ -141,6 +142,7 @@ bool relation::is_symmetric() const
 {
     return true;
 }
+
 /*
  * czy jest przechodnia
  */
