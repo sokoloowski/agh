@@ -1,0 +1,7 @@
+#40;B D E|A C E;A:0 B:0 C:0 D:0 F:5 E:0
+A 10
+B 10 
+C 20 A
+D 20 B 
+E 10 C D
+F 5 C
