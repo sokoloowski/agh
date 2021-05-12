@@ -26,11 +26,6 @@ protected:
     // funkcja, która ma odczytać atrybuty pliku i zapisać w fstat
     void fill_info();
 
-    /*
-     * Kopiuje zawartość do pustego Direnta
-     */
-    void copy(const Dirent &other);
-
 public:
     Dirent(const char *_name, const Dirent *_parent) : name(_name), parent(_parent) {
         fill_info();
@@ -39,15 +34,11 @@ public:
     /*
      * Konstruktor kopiujący
      */
-    Dirent(const Dirent &other) : name(other.name), parent(other.parent) { copy(other); }
+    Dirent(const Dirent &other) : name(other.name), parent(other.parent) {}
 
     virtual ~Dirent() = default;
 
     string get_name() const { return name; }
-
-    Dirent &operator=(const Dirent &other);
-
-    Dirent *find(const char *name);
 
     /*
      * Zwraca ścieżkę, która jest konkatenacją ścieżki rodzica, path_separtor i name
@@ -93,11 +84,32 @@ public:
 };
 
 class Directory : public Dirent {
+protected:
+    /*
+     * Kopiuje zawartość do pustego Direnta
+     */
+    void copy(const Directory &other);
+
 public:
     vector<Dirent *> entries;
 
+    Directory &operator=(const Directory &other);
+
+    /*
+     * Looks for file or subdirectory with given name.
+     * Warning! Name is case-sensitive!
+     */
+    Dirent *find(const char *name);
+
     Directory(const char *_name, const Dirent *_parent = nullptr)
             : Dirent(_name, _parent) {}
+
+    /*
+     * Konstruktor kopiujący
+     */
+    Directory(const Directory &other) : Dirent(other) {
+        copy(other);
+    }
 
     /*
      * Uwaga entries zawierają wskaźniki, trzeba te pliki usunąć
@@ -131,22 +143,6 @@ string Dirent::get_path() const {
     if (this->parent != nullptr)
         return this->parent->get_name() + this->path_separator + this->name;
     return this->name;
-}
-
-Dirent &Dirent::operator=(const Dirent &other) {
-    this->copy(other);
-    return *this;
-}
-
-Dirent *Dirent::find(const char *name) {
-    auto *dirent = new Dirent("name", nullptr);
-    return dirent;
-}
-
-void Dirent::copy(const Dirent &other) {
-    this->name = other.name;
-    this->parent = other.parent;
-    this->fstat = other.fstat;
 }
 
 string Dirent::get_mode_string() const {
@@ -195,6 +191,30 @@ Directory::~Directory() {
     for (auto &e : entries) {
         delete e;
     }
+}
+
+void Directory::copy(const Directory &other) {
+    for (auto e : other.entries) {
+        if (e->is_dir()) {
+            this->entries.push_back(new Directory(*(Directory *) e));
+        } else if (e->is_file()) {
+            this->entries.push_back(new Directory(*(Directory *) e));
+        }
+    }
+}
+
+Directory &Directory::operator=(const Directory &other) {
+    this->copy(other);
+    return *this;
+}
+
+Dirent *Directory::find(const char *name) {
+    for (auto e : entries) {
+        if (e->get_name() == name) {
+            return e;
+        }
+    }
+    return this;
 }
 
 string Directory::to_string() const {
@@ -277,7 +297,7 @@ static void test_assign() {
     Directory copied("c:/");
     copied = d;
     if (copied.get_name() != d.get_name()) {
-        cerr << "Failed to copy!" << endl;
+        cerr << "Failed to assign!" << endl;
     } else {
         copied.scan(1);
         copied.list(cout);
@@ -292,6 +312,18 @@ static void test_copy_constructor() {
     } else {
         copied.scan(1);
         copied.list(cout);
+    }
+}
+
+static void test_find() {
+    const char *search = "Windows";
+    Directory d("c:/");
+    d.scan(1);
+    if (d.find(search)->get_name() == d.get_name()) {
+        cerr << "Not found requested name!" << endl;
+    } else {
+        cout << (d.find(search)->is_dir() ? "Directory \"" : "File \"") << search << "\" found!" << endl;
+        cout << d.find(search)->to_string() << endl;
     }
 }
 
@@ -349,9 +381,10 @@ static void test_dir1() {
 
 int main() {
 //    test_dir1();
-    test_fast();
+//    test_fast();
 //    test_long();
 //    test_assign();
 //    test_copy_constructor();
+    test_find();
 //    cout<<mode_to_string(0751)<<endl;
 }
