@@ -130,14 +130,7 @@ string Dirent::get_mode_string() const {
 }
 
 string Dirent::to_string() const {
-    string formatted_data;
-    stringstream sstream;
-    formatted_data += this->name + " ";
-    formatted_data += this->is_dir() ? "d " : "- ";
-    sstream << fstat.st_mtime;
-    sstream >> formatted_data;
-    formatted_data += " " + this->get_mode_string();
-    return formatted_data;
+    return name;
 }
 
 void Dirent::fill_info() {
@@ -177,8 +170,12 @@ Directory::~Directory() {
 string Directory::to_string() const {
     ostringstream os;
     os << name << " <DIR> [";
-    //czas modyfikacji
+    // czas modyfikacji
+    char buf[20];
+    strftime(buf, 20, "%d-%m-%Y %H:%M:%S", localtime(&fstat.st_mtime));
+    os << "Modified at:" << buf << " ";
     // prawa dostępu (tekst i ósemkowo)
+    os << "mode: " << this->get_mode_string();
     os << "]";
     return os.str();
 }
@@ -190,19 +187,18 @@ void Directory::scan(int max_depth) {
     long handle = _findfirst((get_path() + path_separator + "*").c_str(), &fileinfo);
     if (handle < 0) return;
 
-    if (fileinfo.attrib & _A_NORMAL) {
-        this->entries.push_back(new File(fileinfo.name, this));
-    } else if (fileinfo.attrib & _A_SUBDIR) {
+    if (fileinfo.attrib & _A_SUBDIR) {
         this->entries.push_back(new Directory(fileinfo.name, this));
+    } else {
+        this->entries.push_back(new File(fileinfo.name, this));
     }
 
     while (_findnext(handle, &fileinfo) == 0) {
         if (fileinfo.name == "." || fileinfo.name == "..") continue;
-
-        if (fileinfo.attrib & _A_NORMAL) {
-            this->entries.push_back(new File(fileinfo.name, this));
-        } else if (fileinfo.attrib & _A_SUBDIR) {
+        if (fileinfo.attrib & _A_SUBDIR) {
             this->entries.push_back(new Directory(fileinfo.name, this));
+        } else {
+            this->entries.push_back(new File(fileinfo.name, this));
         }
     }
     _findclose(handle);
@@ -218,7 +214,7 @@ void Directory::scan(int max_depth) {
 }
 
 void Directory::list(ostream &os, int indent) const {
-    // wypisz informacje o kataloguDirent::list(os,indent);
+    // wypisz informacje o katalogu Dirent::list(os,indent);
     // dodaj wcięcie i wypisz informacje o elementach podrzędnych
     Dirent::list(os, indent);
     indent++;
