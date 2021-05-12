@@ -187,14 +187,16 @@ void Directory::scan(int max_depth) {
     long handle = _findfirst((get_path() + path_separator + "*").c_str(), &fileinfo);
     if (handle < 0) return;
 
-    if (fileinfo.attrib & _A_SUBDIR) {
-        this->entries.push_back(new Directory(fileinfo.name, this));
-    } else {
-        this->entries.push_back(new File(fileinfo.name, this));
+    if (strcmp(fileinfo.name, ".") && strcmp(fileinfo.name, "..")) {
+        if (fileinfo.attrib & _A_SUBDIR) {
+            this->entries.push_back(new Directory(fileinfo.name, this));
+        } else {
+            this->entries.push_back(new File(fileinfo.name, this));
+        }
     }
 
     while (_findnext(handle, &fileinfo) == 0) {
-        if (fileinfo.name == "." || fileinfo.name == "..") continue;
+        if (!strcmp(fileinfo.name, ".") || !strcmp(fileinfo.name, "..")) continue;
         if (fileinfo.attrib & _A_SUBDIR) {
             this->entries.push_back(new Directory(fileinfo.name, this));
         } else {
@@ -228,7 +230,7 @@ void Directory::list(ostream &os, int indent) const {
 #pragma region Testy
 
 static void test_fast() {
-    Directory d("d:/agh/");
+    Directory d("c:/");
     d.scan(1);
     d.list(cout);
 }
