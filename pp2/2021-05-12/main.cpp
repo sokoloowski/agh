@@ -205,6 +205,9 @@ void Directory::copy(const Directory &other) {
 
 Directory &Directory::operator=(const Directory &other) {
     this->copy(other);
+    this->parent = other.parent;
+    this->name = other.name;
+    this->fstat = other.fstat;
     return *this;
 }
 
@@ -383,8 +386,8 @@ int main() {
 //    test_dir1();
 //    test_fast();
 //    test_long();
-//    test_assign();
+    test_assign();
 //    test_copy_constructor();
-    test_find();
+//    test_find();
 //    cout<<mode_to_string(0751)<<endl;
 }
