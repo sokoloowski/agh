@@ -1,8 +1,8 @@
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <sys/stat.h>
-#include <time.h>
+#include <ctime>
 #include <io.h>
 #include <vector>
 #include <sstream>
