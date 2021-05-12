@@ -283,7 +283,7 @@ void Directory::list(ostream &os, int indent) const {
 #pragma region Testy
 
 static void test_fast() {
-    Directory d("d:/agh/");
+    Directory d("c:/");
     d.scan(3);
     d.list(cout);
 }
@@ -386,7 +386,7 @@ int main() {
 //    test_dir1();
 //    test_fast();
 //    test_long();
-    test_assign();
+//    test_assign();
 //    test_copy_constructor();
 //    test_find();
 //    cout<<mode_to_string(0751)<<endl;
