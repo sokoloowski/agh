@@ -26,14 +26,28 @@ protected:
     // funkcja, która ma odczytać atrybuty pliku i zapisać w fstat
     void fill_info();
 
+    /*
+     * Kopiuje zawartość do pustego Direnta
+     */
+    void copy(const Dirent &other);
+
 public:
     Dirent(const char *_name, const Dirent *_parent) : name(_name), parent(_parent) {
         fill_info();
     }
 
-    virtual ~Dirent() {}
+    /*
+     * Konstruktor kopiujący
+     */
+    Dirent(const Dirent &other) : name(other.name), parent(other.parent) { copy(other); }
+
+    virtual ~Dirent() = default;
 
     string get_name() const { return name; }
+
+    Dirent &operator=(const Dirent &other);
+
+    Dirent *find(const char *name);
 
     /*
      * Zwraca ścieżkę, która jest konkatenacją ścieżki rodzica, path_separtor i name
@@ -119,6 +133,22 @@ string Dirent::get_path() const {
     return this->name;
 }
 
+Dirent &Dirent::operator=(const Dirent &other) {
+    this->copy(other);
+    return *this;
+}
+
+Dirent *Dirent::find(const char *name) {
+    auto *dirent = new Dirent("name", nullptr);
+    return dirent;
+}
+
+void Dirent::copy(const Dirent &other) {
+    this->name = other.name;
+    this->parent = other.parent;
+    this->fstat = other.fstat;
+}
+
 string Dirent::get_mode_string() const {
     const char *chrmode = "xwr";
     unsigned int mode = fstat.st_mode;
@@ -175,7 +205,7 @@ string Directory::to_string() const {
     strftime(buf, 20, "%d-%m-%Y %H:%M:%S", localtime(&fstat.st_mtime));
     os << "Modified at:" << buf << " ";
     // prawa dostępu (tekst i ósemkowo)
-    os << "mode: " << this->get_mode_string();
+    os << "mode: " << this->get_mode_string() << oct << fstat.st_mode;
     os << "]";
     return os.str();
 }
@@ -183,11 +213,11 @@ string Directory::to_string() const {
 void Directory::scan(int max_depth) {
     if (max_depth == 0) return;
 
-    struct _finddata_t fileinfo;
+    struct _finddata_t fileinfo{};
     long handle = _findfirst((get_path() + path_separator + "*").c_str(), &fileinfo);
     if (handle < 0) return;
 
-    if (strcmp(fileinfo.name, ".") && strcmp(fileinfo.name, "..")) {
+    if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
         if (fileinfo.attrib & _A_SUBDIR) {
             this->entries.push_back(new Directory(fileinfo.name, this));
         } else {
@@ -206,7 +236,7 @@ void Directory::scan(int max_depth) {
     _findclose(handle);
 
     if (max_depth > 1) {
-        for (auto e:entries) {
+        for (auto e : entries) {
             //wywołaj scan(max_depth - 1) ale tylko dla obiektów typu directory
             if (e->is_dir()) {
                 dynamic_cast<Directory *>(e)->scan(max_depth - 1);
@@ -230,8 +260,8 @@ void Directory::list(ostream &os, int indent) const {
 #pragma region Testy
 
 static void test_fast() {
-    Directory d("c:/");
-    d.scan(1);
+    Directory d("d:/agh/");
+    d.scan(3);
     d.list(cout);
 }
 
@@ -240,6 +270,29 @@ static void test_long() {
     d.scan(4); // 2,3 na początek
     ofstream of("dir.txt");
     d.list(of);
+}
+
+static void test_assign() {
+    Directory d("c:/users");
+    Directory copied("c:/");
+    copied = d;
+    if (copied.get_name() != d.get_name()) {
+        cerr << "Failed to copy!" << endl;
+    } else {
+        copied.scan(1);
+        copied.list(cout);
+    }
+}
+
+static void test_copy_constructor() {
+    Directory d("c:/users");
+    Directory copied(d);
+    if (copied.get_name() != d.get_name()) {
+        cerr << "Failed to copy!" << endl;
+    } else {
+        copied.scan(1);
+        copied.list(cout);
+    }
 }
 
 #pragma endregion
@@ -297,5 +350,8 @@ static void test_dir1() {
 int main() {
 //    test_dir1();
     test_fast();
+//    test_long();
+//    test_assign();
+//    test_copy_constructor();
 //    cout<<mode_to_string(0751)<<endl;
 }
